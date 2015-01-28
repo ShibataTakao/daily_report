@@ -1,4 +1,4 @@
-﻿$inDir = "c:\shibata\note\2014"
+﻿$inDir = "c:\shibata\note\current"
 $outFile = "c:\shibata\tmp\search.md"
 
 $output = @()
@@ -6,6 +6,7 @@ $output = @()
 Get-ChildItem $inDir | sort -descending | foreach{
   $output += "# $_`n"
   $inTargetSection = $FALSE
+  $inTargetSection2 = $FALSE
   Get-Content $_.Fullname -Encoding UTF8 | foreach{
     $str = $_
 
@@ -13,7 +14,12 @@ Get-ChildItem $inDir | sort -descending | foreach{
       $inTargetSection = $TRUE
     }elseif($str -eq "----"){
       $inTargetSection = $FALSE
-    }elseif($inTargetSection){
+    }elseif($str -eq "## 報告"){
+      $inTargetSection2 = $TRUE
+      $output += $str
+    }elseif($inTargetSection2 -and ($str -match "## .*")){
+      $inTargetSection2 = $FALSE
+    }elseif($inTargetSection -or $inTargetSection2){
       $output += $str
     }
   }

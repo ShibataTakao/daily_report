@@ -1,4 +1,4 @@
-$inDir = "C:\shibata\note\2014"
+$inDir = "C:\shibata\note\current"
 $today = ("{0}.md" -f (Get-Date).ToString("yyyyMMdd"))
 $yesterday = (Get-ChildItem $inDir | sort Name | select -Last 1).Name
 $template01 = "C:\shibata\src\script\logging\makelog\template01.md"

@@ -1,4 +1,4 @@
-﻿$inDir = "C:\shibata\note\2014"
+﻿$inDir = "C:\shibata\note\current"
 $outFile = "C:\shibata\tmp\日報.txt"
 
 $today = (Get-Date).ToString("yyyyMMdd")
@@ -86,9 +86,6 @@ Get-Content $inFile -Encoding UTF8 | foreach{
             $output += "* 優先度：低"
             $output += $tasksDoing["優先度：低"]
             $output += ""
-            $output += "* 待機"
-            $output += $tasksDoing["待機"]
-            $output += ""
         }
         if($mode -eq "残タスク"){
             # $output += $tasksDone
@@ -117,6 +114,7 @@ Get-Content $inFile -Encoding UTF8 | foreach{
             $value = $matches["value"]
             $worktime[$key] = $value
         }
+    }elseif($mode -eq "今後の予定"){
     }else{
         $output += $str
     }
