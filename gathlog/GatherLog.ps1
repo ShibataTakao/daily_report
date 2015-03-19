@@ -1,4 +1,4 @@
-$inDir = "C:\shibata\note\current"
+$inDir = "D:\shibata\note\current"
 $outFile = "C:\Users\li2887\Desktop\‹Î‘Ó.csv"
 $mode = ""
 

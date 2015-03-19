@@ -1,36 +1,8 @@
-﻿$inDir = "C:\shibata\note\current"
-$outFile = "C:\shibata\tmp\日報.txt"
+﻿$inDir = "D:\shibata\note\current"
+$outFile = "D:\shibata\tmp\日報.txt"
 
 $today = (Get-Date).ToString("yyyyMMdd")
 $inFile = "$inDir\$today.md"
-
-$tasksDoing = @{}
-$tasksDone = @()
-$inTtaskSection = $FALSE
-$mode = ""
-Get-Content $inFile -Encoding UTF8 | foreach{
-    $str = $_
-
-    if($str -eq "# タスク"){
-        $inTtaskSection = $TRUE
-    }
-    if($str -eq "----"){
-        $inTtaskSection = $FALSE
-    }
-    if(-not $inTtaskSection){
-        return
-    }
-
-    if($str -match "## (.*)"){
-        $mode = $matches[1]
-        $tasksDoing[$mode] = @()
-    }
-    if($str -match "^\* \[X\] (?<task>.*)"){
-        $tasksDone += "  + {0}" -f $matches["task"]
-    }elseif($str -match "^\* \[( |-)\] (?<task>.*)"){
-        $tasksDoing[$mode] += "  + {0}" -f $matches["task"]
-    }
-}
 
 $mode = ""
 $time = @{}
@@ -53,7 +25,7 @@ Get-Content $inFile -Encoding UTF8 | foreach{
                     $t = $time[$title]
                     $total += $t
                     $tStr = ""
-                    $output += ("  + {0} ({1:0.00}h)" -f $title, $t)
+                    $output += ("  * {0} ({1:0.00}h)" -f $title, $t)
                 }
             }
             $output += ("[total:{0:0.00}h]" -f $total)
@@ -78,18 +50,6 @@ Get-Content $inFile -Encoding UTF8 | foreach{
 
         $mode = $matches[1]
         $output += "■$mode"
-
-        if($mode -eq "今後の予定"){
-            $output += "* 優先度：高"
-            $output += $tasksDoing["優先度：高"]
-            $output += ""
-            $output += "* 優先度：低"
-            $output += $tasksDoing["優先度：低"]
-            $output += ""
-        }
-        if($mode -eq "残タスク"){
-            # $output += $tasksDone
-        }
     }elseif($mode -eq "実績"){
         if($str -match "(?<t1>\d{2}):(?<t2>\d{2})-(?<t3>\d{2}):(?<t4>\d{2}) \[(?<cat>.*)\] (?<title>.*)"){
             $t1 = 60*[int]$matches["t1"]+[int]$matches["t2"]
@@ -114,7 +74,6 @@ Get-Content $inFile -Encoding UTF8 | foreach{
             $value = $matches["value"]
             $worktime[$key] = $value
         }
-    }elseif($mode -eq "今後の予定"){
     }else{
         $output += $str
     }
