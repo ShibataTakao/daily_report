@@ -20,12 +20,12 @@ Get-Content $inFile -Encoding UTF8 | foreach{
         if($mode -eq "実績"){
             $total = 0
             foreach($cat in $category.Keys){
-                $output += "* $cat"
+                $output += "- $cat"
                 foreach($title in $category[$cat]){
                     $t = $time[$title]
                     $total += $t
                     $tStr = ""
-                    $output += ("  * {0} ({1:0.00}h)" -f $title, $t)
+                    $output += ("  - {0} ({1:0.00}h)" -f $title, $t)
                 }
             }
             $output += ("[total:{0:0.00}h]" -f $total)
@@ -41,9 +41,9 @@ Get-Content $inFile -Encoding UTF8 | foreach{
             $t3 = 60*[int]$ts[0]+[int]$ts[1]
             $total = [double]($t2-$t1-$t3-60)/60.0
 
-            $output += "* 始業 " + $worktime["始業"]
-            $output += "* 終業 " + $worktime["終業"]
-            $output += "* 休憩 " + $worktime["休憩"]
+            $output += "- 始業 " + $worktime["始業"]
+            $output += "- 終業 " + $worktime["終業"]
+            $output += "- 休憩 " + $worktime["休憩"]
             $output += ("[total:{0:0.00}h]" -f $total)
             $output += ""
         }
@@ -69,7 +69,7 @@ Get-Content $inFile -Encoding UTF8 | foreach{
             }
         }
     }elseif($mode -eq "業務時間"){
-        if($str -match "\* (?<key>.*) (?<value>\d{2}:\d{2})"){
+        if($str -match "\- (?<key>.*) (?<value>\d{2}:\d{2})"){
             $key = $matches["key"]
             $value = $matches["value"]
             $worktime[$key] = $value
