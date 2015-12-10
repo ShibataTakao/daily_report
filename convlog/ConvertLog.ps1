@@ -22,10 +22,18 @@ Get-Content $inFile -Encoding UTF8 | foreach{
             foreach($cat in $category.Keys){
                 $output += "- $cat"
                 foreach($title in $category[$cat]){
-                    $t = $time[$title]
-                    $total += $t
-                    $tStr = ""
-                    $output += ("  - {0} ({1:0.00}h)" -f $title, $t)
+                    if($time[$title][0] -eq 0){
+                        $expect_time = " - "
+                    }else{
+                        $expect_time = "{0:0.00}h" -f $time[$title][0]
+                    }
+                    if($time[$title][1] -eq 0){
+                        $actual_time = " - "
+                    }else{
+                        $actual_time = "{0:0.00}h" -f $time[$title][1]
+                    }
+                    $total += $time[$title][1]
+                    $output += ("  - {0} 【{1}/{2}】" -f $title, $expect_time, $actual_time)
                 }
             }
             $output += ("[total:{0:0.00}h]" -f $total)
@@ -49,7 +57,13 @@ Get-Content $inFile -Encoding UTF8 | foreach{
         }
 
         $mode = $matches[1]
-        $output += "■$mode"
+
+        if ($mode -eq "見積"){
+        }elseif($mode -eq "実績"){
+            $output += "■見積/実績"
+        }else{
+            $output += "■$mode"
+        }
     }elseif($mode -eq "実績"){
         if($str -match "(?<t1>\d{2}):(?<t2>\d{2})-(?<t3>\d{2}):(?<t4>\d{2}) \[(?<cat>.*)\] (?<title>.*)"){
             $t1 = 60*[int]$matches["t1"]+[int]$matches["t2"]
@@ -57,9 +71,26 @@ Get-Content $inFile -Encoding UTF8 | foreach{
             $t3 = [double]($t2-$t1)/60.0
             $title = $matches["title"]
             if(-not $time.ContainsKey($title)){
-                $time[$title] = 0
+                $time[$title] = @(0 ,0)
             }
-            $time[$title] += $t3
+            $time[$title][1] += $t3
+            $cat = $matches["cat"]
+            if(-not $category.ContainsKey($cat)){
+                $category[$cat] = @()
+            }
+            if(-not ($category[$cat] -contains $title)){
+                $category[$cat] += $title
+            }
+        }
+    }elseif($mode -eq "見積"){
+        if($str -match "(?<t1>\d{2}):(?<t2>\d{2}) \[(?<cat>.*)\] (?<title>.*)"){
+            $t1 = 60*[int]$matches["t1"]+[int]$matches["t2"]
+            $t2 = [double]($t1)/60.0
+            $title = $matches["title"]
+            if(-not $time.ContainsKey($title)){
+                $time[$title] = @(0 ,0)
+            }
+            $time[$title][0] += $t2
             $cat = $matches["cat"]
             if(-not $category.ContainsKey($cat)){
                 $category[$cat] = @()
