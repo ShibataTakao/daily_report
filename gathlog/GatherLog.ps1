@@ -26,7 +26,7 @@ for($i = 1; $i -le 31; $i++){
             if($str -match "#+ (.*)"){
                 $mode = $matches[1]
             }elseif($mode -eq "ã∆ñ±éûä‘"){  # ã∆ñ±éûä‘ä÷òA
-                if($str -match "\*\s+(?<type>énã∆|èIã∆|ãxåe)\s+(?<t1>\d{2}):(?<t2>\d{2})"){
+                if($str -match "-\s+(?<type>énã∆|èIã∆|ãxåe)\s+(?<t1>\d{2}):(?<t2>\d{2})"){
                     $t3 = (60.0*[double]$matches["t1"]+[double]$matches["t2"])/60.0
                     $type = $matches["type"]
                     if($type -eq "ãxåe" ){
