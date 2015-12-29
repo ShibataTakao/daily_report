@@ -1,13 +1,13 @@
+$ym = $args[0]
+
 $inDir = "D:\shibata\note\current"
-$outFile = "C:\Users\li2887\Desktop\‹Î‘Ó.csv"
+$outFile = "C:\Users\li2887\Desktop\‹Î‘Ó_${ym}.csv"
 $mode = ""
 
 # P#ŠÖ˜A
 $time = @{}
 $times = @{}
 $titles = @()
-
-$ym = (Get-Date).ToString("yyyyMM")
 
 # “Ç‚İ‚İ
 for($i = 1; $i -le 31; $i++){
