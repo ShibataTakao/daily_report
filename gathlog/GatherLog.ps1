@@ -1,7 +1,7 @@
 $ym = $args[0]
 
 $inDir = "D:\shibata\note\current"
-$outFile = "C:\Users\li2887\Desktop\‹Î‘Ó_${ym}.csv"
+$outFile = "C:\Users\li2887\Desktop\‹Î‘ÓH”_${ym}.csv"
 $mode = ""
 
 # P#ŠÖ˜A
