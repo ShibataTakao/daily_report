@@ -11,15 +11,16 @@ $output = @()
 $worktime = @{"始業"="09:30"; "終業"="17:30"; "休憩"="00:00"}
 
 Get-Content $inFile -Encoding UTF8 | foreach{
-    $str = $_.Replace("`t","  ")
+    # $str = $_.Replace("`t","  ")
+    $str = $_
     if($str -eq "----"){
         ([string]::Join("`n", $output)) | Out-File $outFile -Encoding UTF8
         exit
     }elseif($str -eq "# 日報"){
     }elseif($str -match "## (.*)"){
-        if($mode -eq "実績"){
+        if($mode -eq "活動記録"){
             $total = 0
-            foreach($cat in $category.Keys){
+            foreach($cat in ($category.Keys | sort)){
                 $output += "- $cat"
                 foreach($title in $category[$cat]){
                     if($time[$title][0] -eq 0){
@@ -33,7 +34,7 @@ Get-Content $inFile -Encoding UTF8 | foreach{
                         $actual_time = "{0:0.00}h" -f $time[$title][1]
                     }
                     $total += $time[$title][1]
-                    $output += ("  - {0} 【{1}/{2}】" -f $title, $expect_time, $actual_time)
+                    $output += ("`t- {0} 【{1}/{2}】" -f $title, $expect_time, $actual_time)
                 }
             }
             $output += ("[total:{0:0.00}h]" -f $total)
@@ -58,13 +59,13 @@ Get-Content $inFile -Encoding UTF8 | foreach{
 
         $mode = $matches[1]
 
-        if ($mode -eq "見積"){
-        }elseif($mode -eq "実績"){
-            $output += "■見積/実績"
+        if ($mode -eq "今日のタスク"){
+        }elseif($mode -eq "活動記録"){
+            $output += "## 今日のタスク（予定/実績）"
         }else{
-            $output += "■$mode"
+            $output += "## $mode"
         }
-    }elseif($mode -eq "実績"){
+    }elseif($mode -eq "活動記録"){
         if($str -match "(?<t1>\d{2}):(?<t2>\d{2})-(?<t3>\d{2}):(?<t4>\d{2}) \[(?<cat>.*)\] (?<title>.*)"){
             $t1 = 60*[int]$matches["t1"]+[int]$matches["t2"]
             $t2 = 60*[int]$matches["t3"]+[int]$matches["t4"]
@@ -82,8 +83,10 @@ Get-Content $inFile -Encoding UTF8 | foreach{
                 $category[$cat] += $title
             }
         }
-    }elseif($mode -eq "見積"){
-        if($str -match "(?<t1>\d{2}):(?<t2>\d{2}) \[(?<cat>.*)\] (?<title>.*)"){
+    }elseif($mode -eq "今日のタスク"){
+        if($str -match "^- \[.\] (?<cat>.*)"){
+            $cat = $matches["cat"]
+        }elseif($str -match "(?<t1>\d{2}):(?<t2>\d{2}) (?<title>.*)"){
             $t1 = 60*[int]$matches["t1"]+[int]$matches["t2"]
             $t2 = [double]($t1)/60.0
             $title = $matches["title"]
@@ -91,7 +94,6 @@ Get-Content $inFile -Encoding UTF8 | foreach{
                 $time[$title] = @(0 ,0)
             }
             $time[$title][0] += $t2
-            $cat = $matches["cat"]
             if(-not $category.ContainsKey($cat)){
                 $category[$cat] = @()
             }
@@ -105,6 +107,9 @@ Get-Content $inFile -Encoding UTF8 | foreach{
             $value = $matches["value"]
             $worktime[$key] = $value
         }
+    }elseif($mode -eq "明日以降のタスク"){
+        $str = $str -replace "\[ \] ", ""
+        $output += $str
     }else{
         $output += $str
     }
