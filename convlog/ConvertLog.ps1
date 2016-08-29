@@ -11,7 +11,6 @@ $output = @()
 $worktime = @{"始業"="09:30"; "終業"="17:30"; "休憩"="00:00"}
 
 Get-Content $inFile -Encoding UTF8 | foreach{
-    # $str = $_.Replace("`t","  ")
     $str = $_
     if($str -eq "----"){
         ([string]::Join("`n", $output)) | Out-File $outFile -Encoding UTF8
