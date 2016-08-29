@@ -1,5 +1,5 @@
 ﻿$inDir = "D:\shibata\note\current"
-$outFile = "D:\shibata\tmp\日報.txt"
+$outFile = "D:\shibata\tmp\日報.md"
 
 $today = (Get-Date).ToString("yyyyMMdd")
 $inFile = "$inDir\$today.md"
