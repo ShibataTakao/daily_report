@@ -106,6 +106,9 @@ Get-Content $inFile -Encoding UTF8 | foreach{
             $value = $matches["value"]
             $worktime[$key] = $value
         }
+    }elseif($mode -eq "明日以降のタスク"){
+        $str = $str -replace "\[ \] ", ""
+        $output += $str
     }else{
         $output += $str
     }
