@@ -19,7 +19,7 @@ for($i = 1; $i -le 31; $i++){
             $str = $_
             if($str -match "#+ (.*)"){
                 $mode = $matches[1]
-            }elseif($mode -eq "ÀÑ"){  # P#ŠÖ˜A
+            }elseif($mode -eq "Šˆ“®‹L˜^"){  # P#ŠÖ˜A
                 if($str -match "(?<t1>\d{2}):(?<t2>\d{2})-(?<t3>\d{2}):(?<t4>\d{2}) \[(?<cat>.*)\] (?<title>.*)"){
                     $t1 = 60*[int]$matches["t1"]+[int]$matches["t2"]
                     $t2 = 60*[int]$matches["t3"]+[int]$matches["t4"]
