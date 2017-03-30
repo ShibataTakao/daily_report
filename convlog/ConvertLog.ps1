@@ -8,6 +8,7 @@ $mode = ""
 $time = @{}
 $category = @{}
 $output = @()
+# $concerns = @()
 $worktime = @{"始業"="09:30"; "終業"="17:30"; "休憩"="00:00"}
 
 Get-Content $inFile -Encoding UTF8 | foreach{
@@ -18,7 +19,8 @@ Get-Content $inFile -Encoding UTF8 | foreach{
     }elseif($str -eq "# 日報"){
     }elseif($str -match "## (.*)"){
         if($mode -eq "活動記録"){
-            $total = 0
+            $total_expect = 0
+            $total_actual = 0
             foreach($cat in ($category.Keys | sort)){
                 $output += "- $cat"
                 foreach($title in $category[$cat]){
@@ -32,11 +34,12 @@ Get-Content $inFile -Encoding UTF8 | foreach{
                     }else{
                         $actual_time = "{0:0.00}h" -f $time[$title][1]
                     }
-                    $total += $time[$title][1]
+                    $total_expect += $time[$title][0]
+                    $total_actual += $time[$title][1]
                     $output += ("`t- {0} 【{1}/{2}】" -f $title, $expect_time, $actual_time)
                 }
             }
-            $output += ("[total:{0:0.00}h]" -f $total)
+            $output += ("[total:{0:0.00}h/{1:0.00}h]" -f $total_expect, $total_actual)
             $output += ""
         }
 
@@ -56,11 +59,17 @@ Get-Content $inFile -Encoding UTF8 | foreach{
             $output += ""
         }
 
+        # if($mode -eq "懸念事項"){
+        #     $output = $concerns + $output[1..($output.length - 1)]
+        # }
+
         $mode = $matches[1]
 
         if ($mode -eq "今日のタスク"){
         }elseif($mode -eq "活動記録"){
             $output += "## 今日のタスク（予定/実績）"
+        # }elseif($mode -eq "懸念事項"){
+        #     $concerns += "## $mode"
         }else{
             $output += "## $mode"
         }
@@ -109,6 +118,8 @@ Get-Content $inFile -Encoding UTF8 | foreach{
     }elseif($mode -eq "明日以降のタスク"){
         $str = $str -replace "\[ \] ", ""
         $output += $str
+    # }elseif($mode -eq "懸念事項"){
+    #     $concerns += $str
     }else{
         $output += $str
     }

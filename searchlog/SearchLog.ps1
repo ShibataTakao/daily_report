@@ -4,7 +4,7 @@ $outFile = "D:\shibata\tmp\search.md"
 $output = @()
 
 Get-ChildItem $inDir | sort -descending | foreach{
-  $output += "# $_`n"
+  $output += "# $_"
   $mode = ""
   $modeSub = ""
   Get-Content $_.Fullname -Encoding UTF8 | foreach{
@@ -19,7 +19,6 @@ Get-ChildItem $inDir | sort -descending | foreach{
     }
 
     $isLog = $False
-    $isLog = $isLog -or ($mode -eq "日報" -and ($modeSub -eq "報告" -or $modeSub -eq "報告事項"))
     $isLog = $isLog -or ($mode -eq "業務記録" -and -not ($modeSub -contains "タスク"))
 
     if($isLog){
