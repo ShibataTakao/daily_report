@@ -18,8 +18,10 @@ Get-ChildItem $inDir | sort -descending | foreach{
       $modeSub = $matches[1]
     }
 
-    $isLog = $False
-    $isLog = $isLog -or ($mode -eq "業務記録" -and -not ($modeSub -contains "タスク"))
+    $isLog = $mode -eq "業務記録" -and -not ($modeSub -match "タスク")
+    if($isLog){
+      Write-Host $modeSub
+    }
 
     if($isLog){
       $output += $str
