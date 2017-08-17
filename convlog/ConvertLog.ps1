@@ -8,7 +8,6 @@ $mode = ""
 $time = @{}
 $category = @{}
 $output = @()
-# $concerns = @()
 $worktime = @{"始業"="09:30"; "終業"="17:30"; "休憩"="00:00"}
 
 Get-Content $inFile -Encoding UTF8 | foreach{
@@ -59,17 +58,11 @@ Get-Content $inFile -Encoding UTF8 | foreach{
             $output += ""
         }
 
-        # if($mode -eq "懸念事項"){
-        #     $output = $concerns + $output[1..($output.length - 1)]
-        # }
-
         $mode = $matches[1]
 
         if ($mode -eq "今日のタスク"){
         }elseif($mode -eq "活動記録"){
             $output += "## 今日のタスク（予定/実績）"
-        # }elseif($mode -eq "懸念事項"){
-        #     $concerns += "## $mode"
         }else{
             $output += "## $mode"
         }
@@ -118,8 +111,6 @@ Get-Content $inFile -Encoding UTF8 | foreach{
     }elseif($mode -eq "明日以降のタスク"){
         $str = $str -replace "\[ \] ", ""
         $output += $str
-    # }elseif($mode -eq "懸念事項"){
-    #     $concerns += $str
     }else{
         $output += $str
     }
