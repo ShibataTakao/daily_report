@@ -4,111 +4,45 @@
 )
 
 $mode = ""
-$time = @{}
-$category = @{}
 $output = @()
-$worktime = @{"始業"="09:30"; "終業"="17:30"; "休憩"="00:00"}
+$worktime = @{"始業"=0.0; "終業"=0.0; "休憩"=0.0}
+$expect_total, $actual_total = 0.0, 0.0
 
 Get-Content $inFile -Encoding UTF8 | foreach{
     $str = $_
     if($str -eq "----"){
-        ([string]::Join("`n", $output)) | Out-File $outFile -Encoding UTF8
+	$worktime_total = $worktime["終業"]-$worktime["始業"]-$worktime["休憩"]-1.0
+	$output += ("[業務時間/予定/実績 = {0:0.00}h/{1:0.00}h/{2:0.00}h]" -f $worktime_total, $expect_total, $actual_total)
+	([string]::Join("`n", $output)) | Out-File $outFile -Encoding UTF8
         exit
     }elseif($str -eq "# 日報"){
     }elseif($str -match "## (.*)"){
-        if($mode -eq "活動記録"){
-            $total_expect = 0
-            $total_actual = 0
-            foreach($cat in ($category.Keys | sort)){
-                $output += "- $cat"
-                foreach($title in $category[$cat]){
-                    if($time[$title][0] -eq 0){
-                        $expect_time = " - "
-                    }else{
-                        $expect_time = "{0:0.00}h" -f $time[$title][0]
-                    }
-                    if($time[$title][1] -eq 0){
-                        $actual_time = " - "
-                    }else{
-                        $actual_time = "{0:0.00}h" -f $time[$title][1]
-                    }
-                    $total_expect += $time[$title][0]
-                    $total_actual += $time[$title][1]
-                    $output += ("`t- {0} 【{1}/{2}】" -f $title, $expect_time, $actual_time)
-                }
-            }
-            $output += ("[total:{0:0.00}h/{1:0.00}h]" -f $total_expect, $total_actual)
-            $output += ""
-        }
-
-        if($mode -eq "業務時間"){
-            $ts = $worktime["始業"] -split ":"
-            $t1 = 60*[int]$ts[0]+[int]$ts[1]
-            $ts = $worktime["終業"] -split ":"
-            $t2 = 60*[int]$ts[0]+[int]$ts[1]
-            $ts = $worktime["休憩"] -split ":"
-            $t3 = 60*[int]$ts[0]+[int]$ts[1]
-            $total = [double]($t2-$t1-$t3-60)/60.0
-
-            $output += "- 始業 " + $worktime["始業"]
-            $output += "- 終業 " + $worktime["終業"]
-            $output += "- 休憩 " + $worktime["休憩"]
-            $output += ("[total:{0:0.00}h]" -f $total)
-            $output += ""
-        }
-
         $mode = $matches[1]
-
-        if ($mode -eq "今日のタスク"){
-        }elseif($mode -eq "活動記録"){
-            $output += "## 今日のタスク（予定/実績）"
-        }else{
-            $output += "## $mode"
-        }
-    }elseif($mode -eq "活動記録"){
-        if($str -match "(?<t1>\d{2}):(?<t2>\d{2})-(?<t3>\d{2}):(?<t4>\d{2}) \[(?<cat>.*)\] (?<title>.*)"){
-            $t1 = 60*[int]$matches["t1"]+[int]$matches["t2"]
-            $t2 = 60*[int]$matches["t3"]+[int]$matches["t4"]
-            $t3 = [double]($t2-$t1)/60.0
-            $title = $matches["title"]
-            if(-not $time.ContainsKey($title)){
-                $time[$title] = @(0 ,0)
-            }
-            $time[$title][1] += $t3
-            $cat = $matches["cat"]
-            if(-not $category.ContainsKey($cat)){
-                $category[$cat] = @()
-            }
-            if(-not ($category[$cat] -contains $title)){
-                $category[$cat] += $title
-            }
-        }
-    }elseif($mode -eq "今日のタスク"){
-        if($str -match "^- \[.\] (?<cat>.*)"){
-            $cat = $matches["cat"]
-        }elseif($str -match "(?<t1>\d{2}):(?<t2>\d{2}) (?<title>.*)"){
-            $t1 = 60*[int]$matches["t1"]+[int]$matches["t2"]
-            $t2 = [double]($t1)/60.0
-            $title = $matches["title"]
-            if(-not $time.ContainsKey($title)){
-                $time[$title] = @(0 ,0)
-            }
-            $time[$title][0] += $t2
-            if(-not $category.ContainsKey($cat)){
-                $category[$cat] = @()
-            }
-            if(-not ($category[$cat] -contains $title)){
-                $category[$cat] += $title
-            }
-        }
+        $output += $str
     }elseif($mode -eq "業務時間"){
         if($str -match "\- (?<key>.*) (?<value>\d{2}:\d{2})"){
             $key = $matches["key"]
             $value = $matches["value"]
-            $worktime[$key] = $value
+            $ts = $value -split ":"
+	    $t = [double](60*[int]$ts[0]+[int]$ts[1])/60.0
+	    $worktime[$key] = $t
         }
+        $output += $str
+    }elseif($mode -eq "今日のタスク（予定/実績）"){
+        if($str -match "- \[.\] p(?<expect>\d+)/p(?<actual>\d+) (?<title>.*)"){
+	    $expect = [double]$matches["expect"]*0.5
+	    $actual = [double]$matches["actual"]*0.5
+	    $title = $matches["title"]
+	    $output += ("`t- {0} 【{1:0.00}h/{2:0.00}h】" -f $title, $expect, $actual)
+
+	    $expect_total += $expect
+	    $actual_total += $actual
+        }else{
+            $str = $str -replace "\[.\] ", ""
+            $output += $str
+	}
     }elseif($mode -eq "明日以降のタスク"){
-        $str = $str -replace "\[ \] ", ""
+        $str = $str -replace "\[.\] ", ""
         $output += $str
     }else{
         $output += $str
