@@ -13,6 +13,7 @@ Get-Content $inFile -Encoding UTF8 | foreach{
         Write-Host ("業務時間 = {0:0.00}h" -f $worktime_total)
         Write-Host ("今日のタスク（予定） = {0:0.00}h" -f $expect_total)
         Write-Host ("今日のタスク（実績） = {0:0.00}h" -f $actual_total)
+        Write-Host
         exit
     }elseif($str -match "## (.*)"){
         $mode = $matches[1]
