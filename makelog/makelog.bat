@@ -1,8 +1,8 @@
 @echo off
 
 set BIN="C:\Program Files (x86)\Microsoft VS Code\Code.exe"
-set FILE_DAILY=D:\shibata\note\current\%date:~0,4%%date:~5,2%%date:~8,2%.md
-set TEMPLATE=D:\shibata\src\script\logging\makelog\template.md
+set FILE_DAILY=D:\shibata\note\%date:~0,4%%date:~5,2%%date:~8,2%.md
+set TEMPLATE=D:\shibata\src\daily_report\makelog\template.md
 
 IF NOT EXIST %FILE_DAILY% (
 	copy %TEMPLATE% %FILE_DAILY%
