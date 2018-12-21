@@ -8,7 +8,7 @@ $expect_total, $actual_total = 0.0, 0.0
 
 Get-Content $inFile -Encoding UTF8 | foreach{
     $str = $_
-    if($str -eq "----"){
+    if($str -eq "---"){
         $worktime_total = $worktime["終業"]-$worktime["始業"]-$worktime["休憩"]-1.0
         Write-Host ("業務時間 = {0:0.00}h" -f $worktime_total)
         Write-Host ("今日のタスク（予定） = {0:0.00}h" -f $expect_total)
